@@ -1,0 +1,27 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Step 1: Request the page
+URL = requests.get('https://www.amazon.com/Apple-iPhone-15-128GB-Black/dp/B0CMPMY9ZZ?th=1')
+soup = BeautifulSoup(URL.text, 'html.parser')
+
+# Step 2: Extract data
+names = soup.find_all('div', {'class': 'a-profile-content'})
+ratings = soup.find_all('i', class_='review-rating')
+reviews = soup.find_all('div', {'class': 'a-expander-content reviewText review-text-content a-expander-partial-collapse-content'})
+dates = soup.find_all('span', {'data-hook': 'review-date'})
+
+# Step 3: Store in list
+data = []
+for name, rating, review, date in zip(names, ratings, reviews, dates):
+    data.append({
+        'Customer Name': name.get_text(strip=True),
+        'Rating': rating.get_text(strip=True),
+        'Review': review.get_text(strip=True),
+        'Date': date.get_text(strip=True)
+    })
+
+# Step 4: Create DataFrame and display table
+df = pd.DataFrame(data)
+print(df)
